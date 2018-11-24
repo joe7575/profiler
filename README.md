@@ -19,26 +19,26 @@ The steps to measure your Mod performance:
 5. Start profiling by means of the command ``/profiler_start``
 6. Wait a few minutes
 7. Stop profiling by means of the command ``/profiler_stop``
-8. De-instrument your code: ``python ./profiler.py deinstrument ../mymod``
-9. Load the CSV file from the world folder in your shreadsheet application (Excel, Calc, ...)
+8. De-instrument your code: ``python ./profiler.py de-instrument ../mymod``
+9. Load the CSV file from the world folder in your spreadsheet application (Excel, Calc, ...)
 
 
 ## Prepare your Mod
 Your "on_timer" routines have to be local functions like:
 
-	local function my_timer_tunc(pos, elapsed)
+	local function my_timer_func(pos, elapsed)
 		...
 	end
 
 
 	minetest.register_node("mymod:mynode", {
 		...
-		on_timer = my_timer_tunc,
+		on_timer = my_timer_func,
 	})
 
-When you instrument your code, the, line ``on_timer = my_timer_tunc,`` will be replaced by
-``on_timer = function(pos, elapsed) return profiler.profile(<id>, my_timer_tunc, pos, elapsed) end,``
-and will be restored when you deinstrument your code.
+When you instrument your code, the, line ``on_timer = my_timer_func,`` will be replaced by
+``on_timer = function(pos, elapsed) return profiler.profile(<id>, my_timer_func, pos, elapsed) end,``
+and will be restored when you de-instrument your code.
 
 
 ## Dependencies
