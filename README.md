@@ -4,7 +4,18 @@
 
 ![profiler](https://github.com/joe7575/profiler/blob/master/screenshot.png)
 
+The mod consists of:
+* the profiler mod, to be installed in your mod folder
+* the profiler Python (2.7) script as instrumentation tool
 
+The profiler modifies the Lua code of your mod to be able to measure the time spend in the 'on_timer' functions.
+(LBMs/ABMs are not considered).
+
+Before instrumenting the code, the tool will generate a backup file 'profiler_backup.zip' for the case, something should go wrong.
+
+In addition, the tool will add/remove the profiler dependency in 'depends.txt'.
+
+ 
 Browse on: ![GitHub](https://github.com/joe7575/profiler)
 
 Download: ![GitHub](https://github.com/joe7575/profiler/archive/master.zip)
@@ -40,10 +51,6 @@ Your "on_timer" routines have to be local functions like:
 When you instrument your code, the, line ``on_timer = my_timer_func,`` will be replaced by
 ``on_timer = function(pos, elapsed) return profiler.profile(<id>, my_timer_func, pos, elapsed) end,``
 and will be restored when you de-instrument your code.
-
-Before instrumenting the code, the tool will generate a backup file 'profiler_backup.zip' for the case, something should go wrong.
-
-In addition, the tool will add/remove the profiler dependency in 'depends.txt'.
 
 
 ## Hints for good measurement results
