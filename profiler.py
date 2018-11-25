@@ -7,7 +7,11 @@
 # with:
 #     on_timer = function(pos, elapsed) return profiler.profile(1, foo, pos, elapsed) end,
 
-import os, fnmatch, pprint, re, sys
+import os
+import fnmatch
+import re
+import sys
+import zipfile
 
 dReferences = {}
 
@@ -21,7 +25,6 @@ def get_files(path, pattern):
                 lFiles.append(os.path.normpath(os.path.join(root, name)))
 
     return lFiles
-
     
 prog1 = re.compile(r"on_timer *= *function")
 prog2 = re.compile(r"on_timer *= *(\w{2,32}),")
@@ -31,6 +34,17 @@ def check(fname):
     text = file(fname, "rt").read()
     for result in prog1.finditer(text):
         print "\nInvalid syntax in file ",fname, "!!"
+
+def backup(path):
+    dest = os.path.normpath(os.path.join(path, "profiler_backup.zip"))
+    if not os.path.exists(dest):
+        zf = zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED)
+        for fname in get_files(path, '*.lua'):
+            try:
+                zf.write(fname)
+            except:
+                pass
+        print "Backup '%s' created." % dest
 
 def instrument(fname, index):
     data = {"idx": index}
@@ -81,25 +95,29 @@ def remove_from_depends_txt(path):
         text = text.replace("profiler\n", "")
         file(fname, "wt").write(text)
 
-if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        print "Syntax: profile.py instrument/deinstrument <path>"
-        sys.exit(0)
-    if sys.argv[1] == "instrument":
+def main(cmnd, path):
+    if cmnd == "instrument":
+        backup(path)
         idx = 0
-        for fname in get_files(sys.argv[2], '*.lua'):
+        for fname in get_files(path, '*.lua'):
             print "File",fname,"...",
             check(fname)
             idx = instrument(fname, idx)
             print "ok"
         gen_reference_file()
-        add_to_depends_txt(sys.argv[2])
-    elif sys.argv[1] == "deinstrument":
+        add_to_depends_txt(path)
+    elif cmnd == "deinstrument":
         idx = 0
-        for fname in get_files(sys.argv[2], '*.lua'):
+        for fname in get_files(path, '*.lua'):
             print "File",fname,"...",
             idx = deinstrument(fname, idx)
             print "ok"
-        remove_from_depends_txt(sys.argv[2])
-    print idx,"on_timer calls replaced."
-    
+        remove_from_depends_txt(path)
+    print idx,"'on_timer' call(s) replaced."
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        print "Syntax: profile.py instrument/deinstrument <path>"
+    else:
+        main(sys.argv[1], sys.argv[2])

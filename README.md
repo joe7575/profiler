@@ -12,17 +12,16 @@ Download: ![GitHub](https://github.com/joe7575/profiler/archive/master.zip)
 
 ## Introduction
 The necessary steps to measure your Mod performance:
-1. **Make a backup of your mod code (to be on the safer side)**
-2. Take care that your mod is prepared for profiling (see below)
-3. Switch to the profiler folder
-4. Instrument your code by means of ``python ./profiler.py instrument ../mymod``
-5. Start your Minetest server: ``./minetestserver  --worldname myworld``
-6. Start your Minetest client, connect to the server and teleport to the location where your mod works
-7. Start profiling by means of the ingame command ``/profiler_start``
-8. Wait a few minutes
-9. Stop profiling by means of the ingame command ``/profiler_stop``
-10. De-instrument your code: ``python ./profiler.py de-instrument ../mymod``
-11. Load the CSV file from your world folder in your spreadsheet application (Excel, Calc, ...)
+1. Take care that your mod is prepared for profiling (see below)
+2. Switch to the profiler folder
+3. Instrument your code by means of ``python ./profiler.py instrument ../mymod``
+4. Start your Minetest server: ``./minetestserver  --worldname myworld``
+5. Start your Minetest client, connect to the server and teleport to the location where your mod works
+6. Start profiling by means of the ingame command ``/profiler_start``
+7. Wait a few minutes
+8. Stop profiling by means of the ingame command ``/profiler_stop``
+9. De-instrument your code: ``python ./profiler.py de-instrument ../mymod``
+10. Load the CSV file from your world folder in your spreadsheet application (Excel, Calc, ...)
 
 
 ## Prepare your Mod
@@ -41,6 +40,8 @@ Your "on_timer" routines have to be local functions like:
 When you instrument your code, the, line ``on_timer = my_timer_func,`` will be replaced by
 ``on_timer = function(pos, elapsed) return profiler.profile(<id>, my_timer_func, pos, elapsed) end,``
 and will be restored when you de-instrument your code.
+
+Before instrumenting the code, the tool will generate a backup file 'profiler_backup.zip' for the case, something should go wrong.
 
 In addition, the tool will add/remove the profiler dependency in 'depends.txt'.
 
