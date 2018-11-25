@@ -12,12 +12,12 @@ import os, fnmatch, pprint, re, sys
 dReferences = {}
 
 
-def get_lua_files(path):
+def get_files(path, pattern):
     lFiles = []
     
     for root, dirs, files in os.walk(path):
         for name in files:
-            if fnmatch.fnmatch(name, '*.lua'):
+            if fnmatch.fnmatch(name, pattern):
                 lFiles.append(os.path.normpath(os.path.join(root, name)))
 
     return lFiles
@@ -69,6 +69,17 @@ def gen_reference_file():
     lOut.append("}")
     file("./references.lua", "wt").write("\n".join(lOut))
     
+def add_to_depends_txt(path):
+    for fname in get_files(sys.argv[2], 'depends.txt'):
+        text = file(fname, "rt").read()
+        text = "profiler\n" + text
+        file(fname, "wt").write(text)
+
+def remove_from_depends_txt(path):
+    for fname in get_files(sys.argv[2], 'depends.txt'):
+        text = file(fname, "rt").read()
+        text = text.replace("profiler\n", "")
+        file(fname, "wt").write(text)
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
@@ -76,17 +87,19 @@ if __name__ == '__main__':
         sys.exit(0)
     if sys.argv[1] == "instrument":
         idx = 0
-        for fname in get_lua_files(sys.argv[2]):
+        for fname in get_files(sys.argv[2], '*.lua'):
             print "File",fname,"...",
             check(fname)
             idx = instrument(fname, idx)
             print "ok"
         gen_reference_file()
+        add_to_depends_txt(sys.argv[2])
     elif sys.argv[1] == "deinstrument":
         idx = 0
-        for fname in get_lua_files(sys.argv[2]):
+        for fname in get_files(sys.argv[2], '*.lua'):
             print "File",fname,"...",
             idx = deinstrument(fname, idx)
             print "ok"
+        remove_from_depends_txt(sys.argv[2])
     print idx,"on_timer calls replaced."
     

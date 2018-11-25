@@ -40,6 +40,8 @@ When you instrument your code, the, line ``on_timer = my_timer_func,`` will be r
 ``on_timer = function(pos, elapsed) return profiler.profile(<id>, my_timer_func, pos, elapsed) end,``
 and will be restored when you de-instrument your code.
 
+In addition, the tool will add/remove the profiler dependency in 'depends.txt'.
+
 
 ## Dependencies
 none  
